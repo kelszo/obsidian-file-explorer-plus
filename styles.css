@@ -1,0 +1,8 @@
+.file-explorer-plus {
+  &.pin-icon {
+    color: var(--link-color);
+    margin-right: 0.2em;
+    vertical-align: calc(var(--font-text-size) * -0.3);
+    transform: scale(0.9);
+  }
+}

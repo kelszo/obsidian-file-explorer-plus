@@ -1,0 +1,61 @@
+name: Bug Report
+description: Report a bug encountered while using the Unseen Files plugin
+labels: ["bug"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Can you reproduce the bug, if so how? As detailed but minimal as possible.
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Other?
+
+  - type: input
+    id: pluginVersion
+    attributes:
+      label: Plugin version
+      description: You can find the version under Settings -> Community plugins -> Installed plugins -> Projects.
+    validations:
+      required: true
+
+  - type: input
+    id: obsidianVersion
+    attributes:
+      label: Obsidian version
+      description: You can find the version under Settings -> About -> Current version.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: OS
+      multiple: true
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - iOS
+        - Android
+        - Other
+    validations:
+      required: true
+
