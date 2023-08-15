@@ -53,7 +53,7 @@ export function addOnTagChange(plugin: FileExplorerPlusPlugin) {
             const shouldBePinned = plugin.settings.pinFilters.tags.some((filter) => checkTagFilter(filter, path));
             const shouldBeHidden = plugin.settings.hideFilters.tags.some((filter) => checkTagFilter(filter, path));
 
-            if (isPinned !== shouldBeHidden && !shouldBeHidden) {
+            if (isPinned !== shouldBePinned && !shouldBeHidden) {
                 plugin.fileExplorer!.requestSort();
                 return;
             }
