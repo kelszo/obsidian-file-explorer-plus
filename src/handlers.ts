@@ -107,7 +107,7 @@ export function addOnDelete(plugin: FileExplorerPlusPlugin) {
             });
 
             if (hideFilterPreviousIndex !== -1) {
-                this.plugin.settings.hideFilters.tags.splice(hideFilterPreviousIndex, 1);
+                plugin.settings.hideFilters.paths.splice(hideFilterPreviousIndex, 1);
             }
 
             const pinFilterPreviousIndex = plugin.settings.pinFilters.paths.findIndex((pathFilter) => {
@@ -119,7 +119,7 @@ export function addOnDelete(plugin: FileExplorerPlusPlugin) {
             });
 
             if (pinFilterPreviousIndex !== -1) {
-                this.plugin.settings.pinFilters.tags.splice(pinFilterPreviousIndex, 1);
+                plugin.settings.pinFilters.paths.splice(pinFilterPreviousIndex, 1);
             }
         }),
     );
