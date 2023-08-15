@@ -205,7 +205,6 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.pinFilters.tags[index].name = newName;
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
                         });
                 })
                 .addText((text) => {
@@ -299,7 +298,6 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.pinFilters.paths[index].name = newName;
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
                         });
                 })
                 .addSearch((text) => {
@@ -406,7 +404,6 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.hideFilters.tags[index].name = newName;
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
                         });
                 })
                 .addText((text) => {
@@ -500,7 +497,6 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.hideFilters.paths[index].name = newName;
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
                         });
                 })
                 .addSearch((text) => {

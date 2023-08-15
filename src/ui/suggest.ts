@@ -126,7 +126,7 @@ export abstract class TextInputSuggest<T> implements ISuggestOwner<T> {
 
     onInputChanged(): void {
         const inputStr = this.inputEl.value;
-        const suggestions = this.getSuggestions(inputStr);
+        const suggestions = this.getSuggestions(inputStr).slice(0, 10);
 
         if (suggestions.length > 0) {
             this.suggest.setSuggestions(suggestions);
