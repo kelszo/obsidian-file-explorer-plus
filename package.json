@@ -19,5 +19,6 @@
         "@popperjs/core": "^2.11.8",
         "monkey-around": "^2.3.0",
         "wildcard-match": "^5.1.2"
-    }
+    },
+    "version": "1.1.0"
 }
