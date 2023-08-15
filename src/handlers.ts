@@ -47,14 +47,18 @@ export function addCommands(plugin: FileExplorerPlusPlugin) {
 export function addOnTagChange(plugin: FileExplorerPlusPlugin) {
     plugin.registerEvent(
         plugin.app.metadataCache.on("changed", (path, data, cache) => {
-            const isPinned = plugin.fileExplorer!.fileItems[path.path].el.hasClass("tree-item-pinned");
-
-            const isHidden = plugin.fileExplorer!.fileItems[path.path].el.style.display === "none";
+            const isPinned = plugin.fileExplorer!.fileItems[path.path].info.pinned;
+            const isHidden = plugin.fileExplorer!.fileItems[path.path].info.hidden;
 
             const shouldBePinned = plugin.settings.pinFilters.tags.some((filter) => checkTagFilter(filter, path));
             const shouldBeHidden = plugin.settings.hideFilters.tags.some((filter) => checkTagFilter(filter, path));
 
-            if (isPinned !== shouldBePinned || isHidden !== shouldBeHidden) {
+            if (isPinned !== shouldBeHidden && !shouldBeHidden) {
+                plugin.fileExplorer!.requestSort();
+                return;
+            }
+
+            if (isHidden !== shouldBeHidden) {
                 plugin.fileExplorer!.requestSort();
             }
         }),

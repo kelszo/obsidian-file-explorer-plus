@@ -11,7 +11,18 @@ declare module "obsidian" {
         coverEl: HTMLElement;
         el: HTMLElement;
         file: TAbstractFile;
-        info: any;
+        info: {
+            childLeft: number;
+            childLeftPadding: number;
+            childTop: number;
+            computed: boolean;
+            height: number;
+            hidden: boolean;
+            pinned?: boolean;
+            next: boolean;
+            queued: boolean;
+            width: number;
+        };
         innerEl: HTMLElement;
         parent?: PathVirtualElement;
         pusherEl: HTMLElement;

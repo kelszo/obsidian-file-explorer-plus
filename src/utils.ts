@@ -23,16 +23,6 @@ export function changeVirtualElementPin(vEl: PathVirtualElement, pin: boolean): 
     return vEl;
 }
 
-export function changeVirtualElementVisibility(vEl: PathVirtualElement, hide: boolean): PathVirtualElement {
-    if (hide) {
-        vEl.el.style.display = "none";
-    } else {
-        vEl.el.style.display = "";
-    }
-
-    return vEl;
-}
-
 export function checkPathFilter(filter: PathFilter, file: TAbstractFile): boolean {
     if (!filter.active || filter.pattern === "") {
         return false;

@@ -3,7 +3,7 @@ import { around } from "monkey-around";
 
 import FileExplorerPlusSettingTab, { FileExplorerPlusPluginSettings, UNSEEN_FILES_DEFAULT_SETTINGS } from "./settings";
 import { addCommandsToFileMenu, addOnRename, addOnDelete, addOnTagChange, addCommands } from "./handlers";
-import { checkPathFilter, checkTagFilter, changeVirtualElementPin, changeVirtualElementVisibility } from "./utils";
+import { checkPathFilter, checkTagFilter, changeVirtualElementPin } from "./utils";
 
 export default class FileExplorerPlusPlugin extends Plugin {
     settings: FileExplorerPlusPluginSettings;
@@ -50,8 +50,13 @@ export default class FileExplorerPlusPlugin extends Plugin {
                     return function (...args: any[]) {
                         old.call(this, ...args);
 
+                        if (!this.hiddenVChildren) {
+                            this.hiddenVChildren = [];
+                        }
+
+                        // after old.call vChildren is repopulated, but hiddenVChildren is kept
                         let virtualElements: PathVirtualElement[] = this.vChildren.children;
-                        const paths = virtualElements.map((el) => el.file);
+                        let paths = virtualElements.map((el) => el.file);
 
                         if (plugin.settings.hideFilters.active) {
                             const pathsToHide = plugin.getPathsToHide(paths);
@@ -64,16 +69,26 @@ export default class FileExplorerPlusPlugin extends Plugin {
                                 {} as { [key: string]: boolean },
                             );
 
-                            virtualElements = virtualElements.map((vEl) => {
+                            const hiddenVChildren = [];
+                            const visibleVChildren = [];
+
+                            for (const vEl of virtualElements) {
                                 if (pathsToHideLookUp[vEl.file.path]) {
-                                    return changeVirtualElementVisibility(vEl, true);
+                                    vEl.info.hidden = true;
+                                    hiddenVChildren.push(vEl);
                                 } else {
-                                    return changeVirtualElementVisibility(vEl, false);
+                                    vEl.info.hidden = false;
+                                    visibleVChildren.push(vEl);
                                 }
-                            });
-                        } else {
-                            virtualElements = virtualElements.map((vEl) => changeVirtualElementVisibility(vEl, false));
+                            }
+
+                            this.hiddenVChildren = hiddenVChildren;
+                            this.vChildren.setChildren(visibleVChildren);
                         }
+
+                        // only get visible vChildren
+                        virtualElements = this.vChildren.children;
+                        paths = virtualElements.map((el) => el.file);
 
                         if (plugin.settings.pinFilters.active) {
                             const pathsToPin = plugin.getPathsToPin(paths);
@@ -86,15 +101,20 @@ export default class FileExplorerPlusPlugin extends Plugin {
                                 {} as { [key: string]: boolean },
                             );
 
-                            const pinnedVirtualElements = virtualElements
-                                .filter((vEl) => pathsToPinLookUp[vEl.file.path])
-                                .map((vEl) => {
-                                    return changeVirtualElementPin(vEl, true);
-                                });
+                            const pinnedVirtualElements = [];
+                            const notPinnedVirtualElements = [];
 
-                            const notPinnedVirtualElements = virtualElements
-                                .filter((vEl) => !pathsToPinLookUp[vEl.file.path])
-                                .map((vEl) => changeVirtualElementPin(vEl, false));
+                            for (let vEl of virtualElements) {
+                                if (pathsToPinLookUp[vEl.file.path]) {
+                                    vEl = changeVirtualElementPin(vEl, true);
+                                    vEl.info.pinned = true;
+                                    pinnedVirtualElements.push(vEl);
+                                } else {
+                                    vEl = changeVirtualElementPin(vEl, false);
+                                    vEl.info.pinned = false;
+                                    notPinnedVirtualElements.push(vEl);
+                                }
+                            }
 
                             virtualElements = pinnedVirtualElements.concat(notPinnedVirtualElements);
                         } else {
@@ -110,12 +130,7 @@ export default class FileExplorerPlusPlugin extends Plugin {
     }
 
     onunload() {
-        this.settings.pinFilters.active = false;
-        this.settings.hideFilters.active = false;
-
         for (const path in this.fileExplorer!.fileItems) {
-            this.fileExplorer!.fileItems[path] = changeVirtualElementVisibility(this.fileExplorer!.fileItems[path], false);
-
             this.fileExplorer!.fileItems[path] = changeVirtualElementPin(this.fileExplorer!.fileItems[path], false);
         }
 
