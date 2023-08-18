@@ -194,7 +194,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
     }
 
     pinTagFiltersSettings() {
-        this.containerEl.createEl("h2", { text: "Tag Filters" });
+        this.containerEl.createEl("h2", { text: "Tag filters" });
 
         this.plugin.settings.pinFilters.tags.forEach((filter, index) => {
             new Setting(this.containerEl)
@@ -283,7 +283,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
     }
 
     pinPathFiltersSettings() {
-        this.containerEl.createEl("h2", { text: "Path Filters" });
+        this.containerEl.createEl("h2", { text: "Path filters" });
 
         this.plugin.settings.pinFilters.paths.forEach((filter, index) => {
             if (this.plugin.settings.hideStrictPathFilters && filter.patternType === "STRICT") {
@@ -393,7 +393,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
         });
     }
     hideTagFiltersSettings() {
-        this.containerEl.createEl("h2", { text: "Tag Filters" });
+        this.containerEl.createEl("h2", { text: "Tag filters" });
 
         this.plugin.settings.hideFilters.tags.forEach((filter, index) => {
             new Setting(this.containerEl)
@@ -482,7 +482,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
     }
 
     hidePathFiltersSettings() {
-        this.containerEl.createEl("h2", { text: "Path Filters" });
+        this.containerEl.createEl("h2", { text: "Path filters" });
 
         this.plugin.settings.hideFilters.paths.forEach((filter, index) => {
             if (this.plugin.settings.hideStrictPathFilters && filter.patternType === "STRICT") {
