@@ -25,4 +25,9 @@
     td {
         padding: 3px;
     }
+
+    h2.settings-header {
+        font-size: calc(var(--font-ui-medium) * 1.3);
+        font-weight: var(--font-bold);
+    }
 }
