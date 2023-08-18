@@ -99,7 +99,6 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
 
         this.containerEl.empty();
 
-        this.containerEl.createEl("h1", { text: "General" });
         new Setting(this.containerEl)
             .setName("Hide strict path filters in settings")
             .setDesc(
@@ -118,7 +117,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                     });
             });
 
-        this.containerEl.createEl("h1", { text: "Pin Filters" });
+        this.containerEl.createEl("h1", { text: "Pin filters" });
         new Setting(this.containerEl)
             .setName("Enable pin filters")
             .setDesc("Toggle whether or not pin filters for paths and folders should be active.")
@@ -146,7 +145,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
         this.pinTagFiltersSettings();
         this.pinPathFiltersSettings();
 
-        this.containerEl.createEl("h1", { text: "Hide Filters" });
+        this.containerEl.createEl("h1", { text: "Hide filters" });
         new Setting(this.containerEl)
             .setName("Enable hide filters")
             .setDesc("Toggle whether or not hide filters for paths and folders should be active.")
