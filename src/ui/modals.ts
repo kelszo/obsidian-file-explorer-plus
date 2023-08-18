@@ -146,86 +146,82 @@ export class PathsActivatedModal extends Modal {
             return file;
         });
 
-        const table = contentEl.createEl("table", {});
-        table.style.borderCollapse = "collapse";
-        contentEl.style.display = "grid";
-        contentEl.style.placeItems = "center";
-        const headerRow = contentEl.createEl("tr");
+        contentEl.addClasses(["file-explorer-plus", "filters-activated-modal"]);
 
-        const thead = contentEl.createEl("thead");
+        const data = [["Path", "Type", "Filters"]];
 
-        const pathHeaderCell = contentEl.createEl("th");
-        pathHeaderCell.style.textAlign = "center";
-        pathHeaderCell.innerText = "Path";
-        pathHeaderCell.style.paddingLeft = "5px";
-        pathHeaderCell.style.paddingRight = "5px";
-        pathHeaderCell.style.borderBottom = "2px solid black";
-        headerRow.appendChild(pathHeaderCell);
-
-        const typeHeaderCell = contentEl.createEl("th");
-        typeHeaderCell.style.textAlign = "center";
-        typeHeaderCell.innerText = "Type";
-        typeHeaderCell.style.paddingLeft = "5px";
-        typeHeaderCell.style.paddingRight = "5px";
-        typeHeaderCell.style.borderBottom = "2px solid black";
-        headerRow.appendChild(typeHeaderCell);
-
-        const filtersActivatedHeaderCell = contentEl.createEl("th");
-        filtersActivatedHeaderCell.style.textAlign = "center";
-        filtersActivatedHeaderCell.innerText = "Filters";
-        filtersActivatedHeaderCell.style.paddingLeft = "5px";
-        filtersActivatedHeaderCell.style.paddingRight = "5px";
-        filtersActivatedHeaderCell.style.borderBottom = "2px solid black";
-        headerRow.appendChild(filtersActivatedHeaderCell);
-
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-
-        const tbody = contentEl.createEl("tbody");
-        for (const file of pathsActivated) {
-            const row = contentEl.createEl("tr");
-
-            const pathCell = contentEl.createEl("td");
-            pathCell.style.padding = "3px";
-
-            if (file instanceof TFile) {
+        for (const path of pathsActivated) {
+            const row = [];
+            if (path instanceof TFile) {
                 const link = contentEl.createEl("a");
                 link.onClickEvent(() => {
-                    this.app.workspace.getLeaf("tab").openFile(file);
+                    this.app.workspace.getLeaf("tab").openFile(path);
                 });
-                link.innerText = file.path;
-                pathCell.appendChild(link);
+                link.textContent = path.path;
+                row.push(link);
             } else {
-                pathCell.innerText = file.path;
+                row.push(path.path);
             }
-            row.appendChild(pathCell);
 
-            // Create type cell
-            const typeCell = contentEl.createEl("td");
-            typeCell.style.textAlign = "center";
-            typeCell.style.padding = "3px";
-            if (file instanceof TFile) {
-                typeCell.innerText = "File";
-            } else if (file instanceof TFolder) {
-                typeCell.innerText = "Folder";
+            if (path instanceof TFile) {
+                row.push("File");
+            } else if (path instanceof TFolder) {
+                row.push("Folder");
             } else {
-                typeCell.innerText = "Unknown";
+                row.push("Unknown");
             }
-            row.appendChild(typeCell);
 
-            const filtersActivatedCell = contentEl.createEl("td");
-            filtersActivatedCell.style.textAlign = "center";
-            filtersActivatedCell.style.padding = "3px";
-            filtersActivatedCell.innerText = (file as any).filtersActivated;
-            row.appendChild(filtersActivatedCell);
+            row.push((path as any).filtersActivated);
 
-            tbody.appendChild(row);
+            data.push(row);
         }
-        table.appendChild(tbody);
+
+        const table = generateTable(data);
+        contentEl.appendChild(table);
     }
 
     onClose() {
         const { contentEl } = this;
         contentEl.empty();
     }
+}
+
+export function generateTable(data: (string | HTMLElement)[][]): HTMLElement {
+    const table = document.createElement("table", {});
+    const thead = document.createElement("thead");
+    const tbody = document.createElement("tbody");
+
+    table.appendChild(thead);
+    table.appendChild(tbody);
+
+    for (let i = 0; i < data.length; i++) {
+        const row = data[i];
+
+        const tableRow = document.createElement("tr");
+
+        if (i === 0) {
+            thead.appendChild(tableRow);
+        } else {
+            tbody.appendChild(tableRow);
+        }
+
+        for (let j = 0; j < row.length; j++) {
+            let cell;
+            if (i === 0) {
+                cell = document.createElement("th");
+                cell.textContent = data[i][j] as string;
+            } else {
+                cell = document.createElement("td");
+                if (typeof data[i][j] === "string") {
+                    cell.textContent = data[i][j] as string;
+                } else {
+                    cell.appendChild(data[i][j] as HTMLElement);
+                }
+            }
+
+            tableRow.appendChild(cell);
+        }
+    }
+
+    return table;
 }

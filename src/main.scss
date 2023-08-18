@@ -1,0 +1,28 @@
+.file-explorer-plus {
+    &.pin-icon {
+        color: var(--link-color);
+        margin-right: 0.2em;
+        vertical-align: calc(var(--font-text-size) * -0.3);
+        transform: scale(0.9);
+    }
+
+    &.filters-activated-modal {
+        display: grid;
+        place-items: center;
+    }
+
+    table {
+        border-collapse: collapse;
+    }
+
+    th {
+        text-align: center;
+        padding-left: 5px;
+        padding-right: 5px;
+        border-bottom: 2px solid var(--text-normal);
+    }
+
+    td {
+        padding: 3px;
+    }
+}
