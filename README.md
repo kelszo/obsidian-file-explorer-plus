@@ -4,6 +4,8 @@
 hide and pin files and folders. You can utilize custom wildcard or regex filters based on file/folder names, paths, and tags. Additionally,
 a simple click in the file menu lets you hide or pin specific files or folders.
 
+<p align="center"><img src="assets/example.png" width="350"></p>
+
 ## **Usage**
 
 1. Set up filters either via the plugin settings tab in Obsidian or by right-clicking on a file/folder and choosing "Hide/Pin file".
