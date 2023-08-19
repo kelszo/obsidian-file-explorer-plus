@@ -73,17 +73,20 @@ export function checkTagFilter(filter: TagFilter, file: TAbstractFile): boolean 
     }
 
     const cachedMetadata = this.app.metadataCache.getFileCache(file as TFile);
-    if (!cachedMetadata || !cachedMetadata.tags) {
+    if (!cachedMetadata) {
         return false;
     }
+
+    const tags = (cachedMetadata.tags || []).map((tag: TagCache) => tag.tag.replace(/^#/, ""));
+    const frontmatterTags = cachedMetadata.frontmatter?.tags || [];
+
+    const allTags = [...new Set(tags.concat(frontmatterTags))];
 
     if (filter.patternType === "REGEX") {
         const re = new RegExp(filter.pattern);
 
-        return cachedMetadata.tags.some((tag: TagCache) => {
-            const tagCleaned = tag.tag.replace(/^#/, "");
-
-            if (re.test(tagCleaned)) {
+        return allTags.some((tag: string) => {
+            if (re.test(tag)) {
                 return true;
             }
 
@@ -92,20 +95,16 @@ export function checkTagFilter(filter: TagFilter, file: TAbstractFile): boolean 
     } else if (filter.patternType === "WILDCARD") {
         const isMatch = wcmatch(filter.pattern);
 
-        return cachedMetadata.tags.some((tag: TagCache) => {
-            const tagCleaned = tag.tag.replace(/^#/, "");
-
-            if (isMatch(tagCleaned)) {
+        return allTags.some((tag: string) => {
+            if (isMatch(tag)) {
                 return true;
             }
 
             return false;
         });
     } else if (filter.patternType === "STRICT") {
-        return cachedMetadata.tags.some((tag: TagCache) => {
-            const tagCleaned = tag.tag.replace(/^#/, "");
-
-            if (tagCleaned === filter.pattern) {
+        return allTags.some((tag: string) => {
+            if (tag === filter.pattern) {
                 return true;
             }
 
