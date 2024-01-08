@@ -1,9 +1,13 @@
 .file-explorer-plus {
     &.pin-icon {
-        color: var(--link-color);
+        color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
         margin-right: 0.2em;
-        vertical-align: calc(var(--font-text-size) * -0.3);
-        transform: scale(0.9);
+        width: 16px;
+        height: 16px;
+        align-self: center;
+        scale: .75;
+        rotate: 45deg;
+        opacity: 0.7;
     }
 
     &.filters-activated-modal {
@@ -31,3 +35,4 @@
         font-weight: var(--font-bold);
     }
 }
+
