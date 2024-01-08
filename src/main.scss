@@ -1,5 +1,6 @@
 .file-explorer-plus {
     &.pin-icon {
+        color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
         margin-right: 0.2em;
         width: 16px;
         height: 16px;
@@ -33,10 +34,5 @@
         font-size: calc(var(--font-ui-medium) * 1.3);
         font-weight: var(--font-bold);
     }
-}
-
-&.lucide-pin {
-    fill: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
-    stroke: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
 }
 
