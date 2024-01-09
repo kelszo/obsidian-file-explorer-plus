@@ -62,7 +62,6 @@ export function checkPathFilter(filter: PathFilter, file: TAbstractFile): boolea
     return false;
 }
 
-// TODO: Fix tag filters when 1.4 arrives
 export function checkTagFilter(filter: TagFilter, file: TAbstractFile): boolean {
     if (file instanceof TFolder) {
         return false;
