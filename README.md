@@ -20,6 +20,10 @@ a simple click in the file menu lets you hide or pin specific files or folders.
 -   **Transparency**: View the paths hidden or pinned and understand the filter behind each.
 -   **Mobile Compatibility**: This plugin supports mobile devices.
 
+## **Ribbon Icon**
+If you want an icon in the ribbon sidebar, I would recommend using [Obsidian Commander](https://github.com/phibr0/obsidian-commander)
+and adding the `File Explorer++: Toggle all hide filters` command.
+
 ## **Feature Requests and Bug Reporting**
 
 Though the plugin is in its initial stages, we're open to enhancement suggestions. If you encounter any bugs or have a feature in mind,
