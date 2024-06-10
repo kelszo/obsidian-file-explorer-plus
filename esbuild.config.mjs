@@ -1,6 +1,8 @@
 import esbuild from "esbuild";
 import process from "process";
 import builtins from "builtin-modules";
+import path from "path";
+import fs from "fs";
 
 import { sassPlugin } from "esbuild-sass-plugin";
 
@@ -10,7 +12,29 @@ if you want to view the source, please visit the github repository of this plugi
 */
 `;
 
+const isDirectory = (path) => fs.existsSync(vaultPath) && fs.lstatSync(vaultPath).isDirectory();
+
 const prod = process.argv[2] === "production";
+
+let mainJsPath = "main.js";
+let stylesCssPath = "styles.css";
+
+const vaultPath = process.argv[2];
+
+if (isDirectory(vaultPath)) {
+    const pluginsDir = path.join(vaultPath, ".obsidian", "plugins");
+
+    if (isDirectory(pluginsDir)) {
+        const fileExplorerPlusDir = path.join(pluginsDir, "file-explorer-plus");
+        mainJsPath = path.join(fileExplorerPlusDir, "main.js");
+        stylesCssPath = path.join(fileExplorerPlusDir, "styles.css");
+        const hotreloadFilePath = path.join(fileExplorerPlusDir, ".hotreload");
+
+        fs.closeSync(fs.openSync(hotreloadFilePath, "w"));
+
+        console.log(`Saving to ${fileExplorerPlusDir}`);
+    }
+}
 
 let jsContext = esbuild.context({
     banner: {
@@ -39,12 +63,12 @@ let jsContext = esbuild.context({
     logLevel: "info",
     sourcemap: prod ? false : "inline",
     treeShaking: true,
-    outfile: "main.js",
+    outfile: mainJsPath,
 });
 
 let scssContext = esbuild.context({
     entryPoints: ["src/main.scss"],
-    outfile: "styles.css",
+    outfile: stylesCssPath,
     plugins: [sassPlugin()],
 });
 
