@@ -1,4 +1,4 @@
-import { Plugin, TAbstractFile, TFolder, Vault, FileExplorerView, PathVirtualElement } from "obsidian";
+import { Plugin, TAbstractFile, FileExplorerView, WorkspaceLeaf, PathVirtualElement } from "obsidian";
 import { around } from "monkey-around";
 
 import FileExplorerPlusSettingTab, { FileExplorerPlusPluginSettings, UNSEEN_FILES_DEFAULT_SETTINGS } from "./settings";
@@ -7,7 +7,6 @@ import { checkPathFilter, checkTagFilter, changeVirtualElementPin } from "./util
 
 export default class FileExplorerPlusPlugin extends Plugin {
     settings: FileExplorerPlusPluginSettings;
-    fileExplorer?: FileExplorerView | null;
 
     async onload() {
         await this.loadSettings();
@@ -21,42 +20,46 @@ export default class FileExplorerPlusPlugin extends Plugin {
         this.addSettingTab(new FileExplorerPlusSettingTab(this.app, this));
 
         this.app.workspace.onLayoutReady(() => {
-            this.patchFileExplorerFolder();
-            this.fileExplorer!.requestSort();
+            this.patchFileExplorer();
+            this.getFileExplorer()?.requestSort();
+
+            console.log(this.app.workspace.getLeavesOfType("file-explorer")?.first());
+        });
+
+        this.app.workspace.on("layout-change", () => {
+            if (!this.getFileExplorer()?.fileExplorerPlusPatched) {
+                this.patchFileExplorer();
+                this.getFileExplorer()?.requestSort();
+            }
         });
     }
 
-    getFileExplorer(): FileExplorerView | undefined {
-        return this.app.workspace.getLeavesOfType("file-explorer")?.first()?.view as FileExplorerView;
+    getFileExplorerContainer(): WorkspaceLeaf | undefined {
+        return this.app.workspace.getLeavesOfType("file-explorer")?.first();
     }
 
-    patchFileExplorerFolder() {
-        this.fileExplorer = this.getFileExplorer();
+    getFileExplorer(): FileExplorerView | undefined {
+        const fileExplorerContainer = this.getFileExplorerContainer();
+        return fileExplorerContainer?.view as FileExplorerView;
+    }
 
-        if (!this.fileExplorer) {
+    patchFileExplorer() {
+        const fileExplorer = this.getFileExplorer();
+
+        if (!fileExplorer) {
             throw Error("Could not find file explorer");
         }
 
         const plugin = this;
         const leaf = this.app.workspace.getLeaf(true);
 
-        //@ts-expect-error
-        const tmpFolder = new TFolder(Vault, "");
-        const Folder = this.fileExplorer!.createFolderDom(tmpFolder).constructor;
-
         this.register(
-            around(Folder.prototype, {
-                sort(old: any) {
+            around(Object.getPrototypeOf(fileExplorer), {
+                getSortedFolderItems(old: any) {
                     return function (...args: any[]) {
-                        old.call(this, ...args);
+                        let sortedChildren: PathVirtualElement[] = old.call(this, ...args);
 
-                        if (!this.hiddenVChildren) {
-                            this.hiddenVChildren = [];
-                        }
-
-                        // after old.call vChildren is repopulated, but hiddenVChildren is kept
-                        let virtualElements: PathVirtualElement[] = this.vChildren.children;
-                        let paths = virtualElements.map((el) => el.file);
+                        let paths = sortedChildren.map((el) => el.file);
 
                         if (plugin.settings.hideFilters.active) {
                             const pathsToHide = plugin.getPathsToHide(paths);
@@ -69,26 +72,19 @@ export default class FileExplorerPlusPlugin extends Plugin {
                                 {} as { [key: string]: boolean },
                             );
 
-                            const hiddenVChildren = [];
-                            const visibleVChildren = [];
-
-                            for (const vEl of virtualElements) {
+                            sortedChildren = sortedChildren.filter((vEl) => {
                                 if (pathsToHideLookUp[vEl.file.path]) {
                                     vEl.info.hidden = true;
-                                    hiddenVChildren.push(vEl);
+                                    return false;
                                 } else {
                                     vEl.info.hidden = false;
-                                    visibleVChildren.push(vEl);
+                                    return true;
                                 }
-                            }
-
-                            this.hiddenVChildren = hiddenVChildren;
-                            this.vChildren.setChildren(visibleVChildren);
+                            });
                         }
 
                         // only get visible vChildren
-                        virtualElements = this.vChildren.children;
-                        paths = virtualElements.map((el) => el.file);
+                        paths = sortedChildren.map((el) => el.file);
 
                         if (plugin.settings.pinFilters.active) {
                             const pathsToPin = plugin.getPathsToPin(paths);
@@ -101,40 +97,54 @@ export default class FileExplorerPlusPlugin extends Plugin {
                                 {} as { [key: string]: boolean },
                             );
 
-                            const pinnedVirtualElements = [];
-                            const notPinnedVirtualElements = [];
-
-                            for (let vEl of virtualElements) {
+                            const pinnedVirtualElements = sortedChildren.filter((vEl) => {
                                 if (pathsToPinLookUp[vEl.file.path]) {
                                     vEl = changeVirtualElementPin(vEl, true);
                                     vEl.info.pinned = true;
-                                    pinnedVirtualElements.push(vEl);
+                                    return true;
                                 } else {
                                     vEl = changeVirtualElementPin(vEl, false);
                                     vEl.info.pinned = false;
-                                    notPinnedVirtualElements.push(vEl);
+                                    return false;
                                 }
-                            }
+                            });
+                            const notPinnedVirtualElements = sortedChildren.filter((vEl) => {
+                                if (pathsToPinLookUp[vEl.file.path]) {
+                                    return false;
+                                } else {
+                                    return true;
+                                }
+                            });
 
-                            virtualElements = pinnedVirtualElements.concat(notPinnedVirtualElements);
+                            sortedChildren = pinnedVirtualElements.concat(notPinnedVirtualElements);
                         } else {
-                            virtualElements = virtualElements.map((vEl) => changeVirtualElementPin(vEl, false));
+                            sortedChildren = sortedChildren.map((vEl) => changeVirtualElementPin(vEl, false));
                         }
 
-                        this.vChildren.setChildren(virtualElements);
+                        return sortedChildren;
                     };
                 },
             }),
         );
+
         leaf.detach();
+
+        fileExplorer.fileExplorerPlusPatched = true;
     }
 
     onunload() {
-        for (const path in this.fileExplorer!.fileItems) {
-            this.fileExplorer!.fileItems[path] = changeVirtualElementPin(this.fileExplorer!.fileItems[path], false);
+        const fileExplorer = this.getFileExplorer();
+
+        if (!fileExplorer) {
+            return;
         }
 
-        this.fileExplorer!.requestSort();
+        for (const path in fileExplorer!.fileItems) {
+            fileExplorer!.fileItems[path] = changeVirtualElementPin(fileExplorer!.fileItems[path], false);
+        }
+
+        fileExplorer.requestSort();
+        fileExplorer.fileExplorerPlusPatched = false;
     }
 
     async loadSettings() {

@@ -68,7 +68,7 @@ export class InputFilterNameModal extends FuzzySuggestModal<Filter> {
             });
         }
 
-        this.plugin.fileExplorer!.requestSort();
+        this.plugin.getFileExplorer()?.requestSort();
     }
 }
 

@@ -131,7 +131,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
 
                         this.plugin.saveSettings();
 
-                        this.plugin.fileExplorer!.requestSort();
+                        this.plugin.getFileExplorer()?.requestSort();
                     });
             });
 
@@ -159,7 +159,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
 
                         this.plugin.saveSettings();
 
-                        this.plugin.fileExplorer!.requestSort();
+                        this.plugin.getFileExplorer()?.requestSort();
                     });
             });
 
@@ -214,7 +214,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.pinFilters.tags[index].pattern = newPattern;
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 })
                 .addDropdown((dropdown) => {
@@ -229,7 +229,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.pinFilters.tags[index].patternType = newPatternType as Filter["patternType"];
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 })
                 .addToggle((toggle) => {
@@ -240,7 +240,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.pinFilters.tags[index].active = isActive;
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 })
                 .addExtraButton((button) => {
@@ -260,7 +260,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
 
                             this.plugin.saveSettings();
                             this.display();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 });
         });
@@ -309,7 +309,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.pinFilters.paths[index].pattern = newPattern;
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 })
                 .addDropdown((dropdown) => {
@@ -324,7 +324,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.pinFilters.paths[index].type = newType as PathFilter["type"];
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 })
                 .addDropdown((dropdown) => {
@@ -339,7 +339,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.pinFilters.paths[index].patternType = newPatternType as Filter["patternType"];
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 })
                 .addToggle((toggle) => {
@@ -350,7 +350,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.pinFilters.paths[index].active = isActive;
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 })
                 .addExtraButton((button) => {
@@ -370,7 +370,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
 
                             this.plugin.saveSettings();
                             this.display();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 });
         });
@@ -413,7 +413,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.hideFilters.tags[index].pattern = newPattern;
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 })
                 .addDropdown((dropdown) => {
@@ -428,7 +428,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.hideFilters.tags[index].patternType = newPatternType as Filter["patternType"];
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 })
                 .addToggle((toggle) => {
@@ -439,7 +439,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.hideFilters.tags[index].active = isActive;
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 })
                 .addExtraButton((button) => {
@@ -459,7 +459,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
 
                             this.plugin.saveSettings();
                             this.display();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 });
         });
@@ -508,7 +508,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.hideFilters.paths[index].pattern = newPattern;
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 })
                 .addDropdown((dropdown) => {
@@ -523,7 +523,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.hideFilters.paths[index].type = newType as PathFilter["type"];
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 })
                 .addDropdown((dropdown) => {
@@ -538,7 +538,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.hideFilters.paths[index].patternType = newPatternType as Filter["patternType"];
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 })
                 .addToggle((toggle) => {
@@ -549,7 +549,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
                             this.plugin.settings.hideFilters.paths[index].active = isActive;
 
                             this.plugin.saveSettings();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 })
                 .addExtraButton((button) => {
@@ -569,7 +569,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
 
                             this.plugin.saveSettings();
                             this.display();
-                            this.plugin.fileExplorer!.requestSort();
+                            this.plugin.getFileExplorer()?.requestSort();
                         });
                 });
         });
