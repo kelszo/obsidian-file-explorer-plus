@@ -22,8 +22,6 @@ export default class FileExplorerPlusPlugin extends Plugin {
         this.app.workspace.onLayoutReady(() => {
             this.patchFileExplorer();
             this.getFileExplorer()?.requestSort();
-
-            console.log(this.app.workspace.getLeavesOfType("file-explorer")?.first());
         });
 
         this.app.workspace.on("layout-change", () => {
