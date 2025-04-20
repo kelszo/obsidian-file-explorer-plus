@@ -1,10 +1,10 @@
 {
-	"id": "file-explorer-plus",
-	"name": "File Explorer++",
-	"version": "1.2.1",
-	"minAppVersion": "1.6.3",
-	"description": "Hide and pin files and folders in the file explorer using custom filters, such as wildcards and regex, based on their names, paths, and tags. Additionally, achieve the same with a single click in the file menu.",
-	"author": "kelszo",
-	"authorUrl": "https://github.com/kelszo",
-	"isDesktopOnly": false
+  "id": "file-explorer-plus",
+  "name": "File Explorer++",
+  "version": "1.2.1",
+  "minAppVersion": "1.6.3",
+  "description": "Hide and pin files and folders in the file explorer using custom filters, such as wildcards and regex, based on their names, paths, and tags. Additionally, achieve the same with a single click in the file menu.",
+  "author": "kelszo",
+  "authorUrl": "https://github.com/kelszo",
+  "isDesktopOnly": false
 }
