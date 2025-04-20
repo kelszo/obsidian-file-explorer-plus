@@ -20,18 +20,28 @@ export interface PathFilter {
   patternType: "REGEX" | "WILDCARD" | "STRICT";
 }
 
+export interface FrontMatterFilter {
+  name: string;
+  active: boolean;
+  path: string;
+  pattern: string;
+  patternType: "REGEX" | "WILDCARD" | "STRICT";
+}
+
 export interface FileExplorerPlusPluginSettings {
   hideStrictPathFilters: boolean;
   pinFilters: {
     active: boolean;
     tags: TagFilter[];
     paths: PathFilter[];
+    frontMatter: FrontMatterFilter[];
   };
 
   hideFilters: {
     active: boolean;
     tags: TagFilter[];
     paths: PathFilter[];
+    frontMatter: FrontMatterFilter[];
   };
 }
 
@@ -42,7 +52,7 @@ export interface Filter {
   patternType: "REGEX" | "WILDCARD" | "STRICT";
 }
 
-export const UNSEEN_FILES_DEFAULT_SETTINGS: FileExplorerPlusPluginSettings = {
+export const FILE_EXPLORER_PLUS_DEFAULT_SETTINGS: FileExplorerPlusPluginSettings = {
   hideStrictPathFilters: true,
   pinFilters: {
     active: true,
@@ -63,6 +73,15 @@ export const UNSEEN_FILES_DEFAULT_SETTINGS: FileExplorerPlusPluginSettings = {
         patternType: "WILDCARD",
       },
     ],
+    frontMatter: [
+      {
+        name: "",
+        active: true,
+        path: "",
+        pattern: "",
+        patternType: "STRICT",
+      },
+    ],
   },
   hideFilters: {
     active: true,
@@ -83,6 +102,15 @@ export const UNSEEN_FILES_DEFAULT_SETTINGS: FileExplorerPlusPluginSettings = {
         patternType: "WILDCARD",
       },
     ],
+    frontMatter: [
+      {
+        name: "",
+        active: true,
+        path: "",
+        pattern: "",
+        patternType: "STRICT",
+      },
+    ],
   },
 };
 
@@ -96,6 +124,15 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
 
   display(): void {
     this.cleanSettings();
+
+    // Ensure that new settings exists
+    if (!this.plugin.settings.pinFilters.frontMatter) {
+      this.plugin.settings.pinFilters.frontMatter = FILE_EXPLORER_PLUS_DEFAULT_SETTINGS.pinFilters.frontMatter;
+    }
+
+    if (!this.plugin.settings.hideFilters.frontMatter) {
+      this.plugin.settings.hideFilters.frontMatter = FILE_EXPLORER_PLUS_DEFAULT_SETTINGS.hideFilters.frontMatter;
+    }
 
     this.containerEl.empty();
     this.containerEl.addClass("file-explorer-plus");
@@ -145,6 +182,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
       });
     this.pinTagFiltersSettings();
     this.pinPathFiltersSettings();
+    this.pinFrontMatterFiltersSettings();
 
     this.containerEl.createEl("h2", { text: "Hide filters", attr: { class: "settings-header" } });
     new Setting(this.containerEl)
@@ -173,6 +211,7 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
       });
     this.hideTagFiltersSettings();
     this.hidePathFiltersSettings();
+    this.hideFrontMatterFiltersSettings();
   }
 
   cleanSettings() {
@@ -396,6 +435,110 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
         });
     });
   }
+
+  pinFrontMatterFiltersSettings() {
+    this.containerEl.createEl("h2", { text: "Front Matter filters" });
+
+    this.plugin.settings.pinFilters.frontMatter?.forEach((filter, index) => {
+      new Setting(this.containerEl)
+        .addText((text) => {
+          text
+            .setPlaceholder("Name (optional)")
+            .setValue(filter.name)
+            .onChange((newName) => {
+              this.plugin.settings.pinFilters.frontMatter[index].name = newName;
+
+              this.plugin.saveSettings();
+            });
+        })
+        .addText((text) => {
+          text
+            .setPlaceholder("Key path (required)")
+            .setValue(filter.path)
+            .onChange((newPath) => {
+              this.plugin.settings.pinFilters.frontMatter[index].path = newPath;
+
+              this.plugin.saveSettings();
+              this.plugin.getFileExplorer()?.requestSort();
+            });
+        })
+        .addText((text) => {
+          text
+            .setPlaceholder("Value pattern (required)")
+            .setValue(filter.pattern)
+            .onChange((newPattern) => {
+              this.plugin.settings.pinFilters.frontMatter[index].pattern = newPattern;
+
+              this.plugin.saveSettings();
+              this.plugin.getFileExplorer()?.requestSort();
+            });
+        })
+        // .addDropdown((dropdown) => {
+        //   dropdown
+        //     .addOptions({
+        //       WILDCARD: "Wildcard",
+        //       REGEX: "Regex",
+        //       STRICT: "Strict",
+        //     })
+        //     .setValue(filter.patternType)
+        //     .onChange((newPatternType) => {
+        //       this.plugin.settings.pinFilters.frontMatter[index].patternType = newPatternType as Filter["patternType"];
+
+        //       this.plugin.saveSettings();
+        //       this.plugin.getFileExplorer()?.requestSort();
+        //     });
+        // })
+        .addToggle((toggle) => {
+          toggle
+            .setTooltip("Active")
+            .setValue(filter.active)
+            .onChange((isActive) => {
+              this.plugin.settings.pinFilters.frontMatter[index].active = isActive;
+
+              this.plugin.saveSettings();
+              this.plugin.getFileExplorer()?.requestSort();
+            });
+        })
+        .addExtraButton((button) => {
+          button
+            .setIcon("calculator")
+            .setTooltip("View paths pinned by this filter")
+            .onClick(() => {
+              new PathsActivatedModal(this.plugin, "PIN", filter, "FRONTMATTER").open();
+            });
+        })
+        .addExtraButton((button) => {
+          button
+            .setIcon("cross")
+            .setTooltip("Delete")
+            .onClick(() => {
+              this.plugin.settings.pinFilters.frontMatter.splice(index, 1);
+
+              this.plugin.saveSettings();
+              this.display();
+              this.plugin.getFileExplorer()?.requestSort();
+            });
+        });
+    });
+
+    new Setting(this.containerEl).addButton((button) => {
+      button
+        .setButtonText("Add new pin filter for front matter")
+        .setCta()
+        .onClick(() => {
+          this.plugin.settings.pinFilters.frontMatter.push({
+            name: "",
+            active: true,
+            path: "",
+            pattern: "",
+            patternType: "STRICT",
+          });
+          this.plugin.saveSettings();
+          this.display();
+        });
+    });
+  }
+
   hideTagFiltersSettings() {
     this.containerEl.createEl("h2", { text: "Tag filters" });
 
@@ -593,6 +736,109 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
             type: "FILES_AND_DIRECTORIES",
             pattern: "",
             patternType: "WILDCARD",
+          });
+          this.plugin.saveSettings();
+          this.display();
+        });
+    });
+  }
+
+  hideFrontMatterFiltersSettings() {
+    this.containerEl.createEl("h2", { text: "Front Matter filters" });
+
+    this.plugin.settings.hideFilters.frontMatter?.forEach((filter, index) => {
+      new Setting(this.containerEl)
+        .addText((text) => {
+          text
+            .setPlaceholder("Name (optional)")
+            .setValue(filter.name)
+            .onChange((newName) => {
+              this.plugin.settings.hideFilters.frontMatter[index].name = newName;
+
+              this.plugin.saveSettings();
+            });
+        })
+        .addText((text) => {
+          text
+            .setPlaceholder("Key path (required)")
+            .setValue(filter.path)
+            .onChange((newPath) => {
+              this.plugin.settings.hideFilters.frontMatter[index].path = newPath;
+
+              this.plugin.saveSettings();
+              this.plugin.getFileExplorer()?.requestSort();
+            });
+        })
+        .addText((text) => {
+          text
+            .setPlaceholder("Value pattern (required)")
+            .setValue(filter.pattern)
+            .onChange((newPattern) => {
+              this.plugin.settings.hideFilters.frontMatter[index].pattern = newPattern;
+
+              this.plugin.saveSettings();
+              this.plugin.getFileExplorer()?.requestSort();
+            });
+        })
+        // .addDropdown((dropdown) => {
+        //   dropdown
+        //     .addOptions({
+        //       WILDCARD: "Wildcard",
+        //       REGEX: "Regex",
+        //       STRICT: "Strict",
+        //     })
+        //     .setValue(filter.patternType)
+        //     .onChange((newPatternType) => {
+        //       this.plugin.settings.hideFilters.frontMatter[index].patternType = newPatternType as Filter["patternType"];
+
+        //       this.plugin.saveSettings();
+        //       this.plugin.getFileExplorer()?.requestSort();
+        //     });
+        // })
+        .addToggle((toggle) => {
+          toggle
+            .setTooltip("Active")
+            .setValue(filter.active)
+            .onChange((isActive) => {
+              this.plugin.settings.hideFilters.frontMatter[index].active = isActive;
+
+              this.plugin.saveSettings();
+              this.plugin.getFileExplorer()?.requestSort();
+            });
+        })
+        .addExtraButton((button) => {
+          button
+            .setIcon("calculator")
+            .setTooltip("View paths pinned by this filter")
+            .onClick(() => {
+              new PathsActivatedModal(this.plugin, "PIN", filter, "FRONTMATTER").open();
+            });
+        })
+        .addExtraButton((button) => {
+          button
+            .setIcon("cross")
+            .setTooltip("Delete")
+            .onClick(() => {
+              this.plugin.settings.hideFilters.frontMatter.splice(index, 1);
+
+              this.plugin.saveSettings();
+              this.display();
+              this.plugin.getFileExplorer()?.requestSort();
+            });
+        });
+    });
+
+    new Setting(this.containerEl).addButton((button) => {
+      button
+        .setButtonText("Add new pin filter for front matter")
+        .setCta()
+        .onClick(() => {
+          this.plugin.settings.hideFilters.frontMatter.push({
+            name: "",
+            active: true,
+            path: "",
+            pattern: "",
+            patternType: "STRICT",
           });
           this.plugin.saveSettings();
           this.display();

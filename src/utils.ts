@@ -1,7 +1,24 @@
 import { TAbstractFile, TFile, TFolder, setIcon, PathVirtualElement, TagCache } from "obsidian";
 import wcmatch from "wildcard-match";
 
-import { PathFilter, TagFilter } from "./settings";
+import { FrontMatterFilter, PathFilter, TagFilter } from "./settings";
+
+function flattenObject(obj: Record<string, any>, prefix: string = ""): Record<string, any> {
+  return Object.keys(obj).reduce((acc: Record<string, any>, key: string) => {
+    const prefixedKey = prefix ? `${prefix}.${key}` : key;
+
+    if (typeof obj[key] === "object" && obj[key] !== null && !Array.isArray(obj[key])) {
+      // Recursively flatten nested objects
+      const flattened = flattenObject(obj[key], prefixedKey);
+      Object.assign(acc, flattened);
+    } else {
+      // Add the property with its prefixed key
+      acc[prefixedKey] = obj[key];
+    }
+
+    return acc;
+  }, {});
+}
 
 export function changeVirtualElementPin(vEl: PathVirtualElement, pin: boolean): PathVirtualElement {
   if (pin && !vEl.el.hasClass("tree-item-pinned")) {
@@ -95,30 +112,50 @@ export function checkTagFilter(filter: TagFilter, file: TAbstractFile): boolean 
     const re = new RegExp(filter.pattern);
 
     return allTags.some((tag: string) => {
-      if (re.test(tag)) {
-        return true;
-      }
-
-      return false;
+      return re.test(tag);
     });
   } else if (filter.patternType === "WILDCARD") {
     const isMatch = wcmatch(filter.pattern);
 
     return allTags.some((tag: string) => {
-      if (isMatch(tag)) {
-        return true;
-      }
-
-      return false;
+      return isMatch(tag);
     });
   } else if (filter.patternType === "STRICT") {
     return allTags.some((tag: string) => {
-      if (tag === filter.pattern) {
-        return true;
-      }
-
-      return false;
+      return tag === filter.pattern;
     });
+  }
+
+  return false;
+}
+
+export function checkFrontMatterFilter(filter: FrontMatterFilter, file: TAbstractFile): boolean {
+  if (file instanceof TFolder) {
+    return false;
+  }
+
+  if (!filter.active || filter.pattern === "" || filter.path == "") {
+    return false;
+  }
+
+  const cachedMetadata = this.app.metadataCache.getFileCache(file as TFile);
+  if (!cachedMetadata) {
+    return false;
+  }
+
+  const frontmatter = flattenObject(cachedMetadata.frontmatter || {});
+  const value = String(frontmatter[filter.path]);
+
+  if (filter.patternType === "REGEX") {
+    const re = new RegExp(filter.pattern);
+
+    return re.test(value);
+  } else if (filter.patternType === "WILDCARD") {
+    const isMatch = wcmatch(filter.pattern);
+
+    return isMatch(value);
+  } else if (filter.patternType === "STRICT") {
+    return value == filter.pattern;
   }
 
   return false;

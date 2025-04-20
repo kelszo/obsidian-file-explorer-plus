@@ -1,9 +1,12 @@
 import { Plugin, TAbstractFile, FileExplorerView, WorkspaceLeaf, PathVirtualElement } from "obsidian";
 import { around } from "monkey-around";
 
-import FileExplorerPlusSettingTab, { FileExplorerPlusPluginSettings, UNSEEN_FILES_DEFAULT_SETTINGS } from "./settings";
+import FileExplorerPlusSettingTab, {
+  FileExplorerPlusPluginSettings,
+  FILE_EXPLORER_PLUS_DEFAULT_SETTINGS,
+} from "./settings";
 import { addCommandsToFileMenu, addOnRename, addOnDelete, addOnTagChange, addCommands } from "./handlers";
-import { checkPathFilter, checkTagFilter, changeVirtualElementPin } from "./utils";
+import { checkPathFilter, checkTagFilter, changeVirtualElementPin, checkFrontMatterFilter } from "./utils";
 
 export default class FileExplorerPlusPlugin extends Plugin {
   settings: FileExplorerPlusPluginSettings;
@@ -156,7 +159,7 @@ export default class FileExplorerPlusPlugin extends Plugin {
   }
 
   async loadSettings() {
-    this.settings = Object.assign({}, UNSEEN_FILES_DEFAULT_SETTINGS, await this.loadData());
+    this.settings = Object.assign({}, FILE_EXPLORER_PLUS_DEFAULT_SETTINGS, await this.loadData());
   }
 
   async saveSettings() {
@@ -170,14 +173,19 @@ export default class FileExplorerPlusPlugin extends Plugin {
       }
 
       const pathFilterActivated = this.settings.pinFilters.paths.some((filter) => checkPathFilter(filter, path));
-
       if (pathFilterActivated) {
         return true;
       }
 
       const tagFilterActivated = this.settings.pinFilters.tags.some((filter) => checkTagFilter(filter, path));
-
       if (tagFilterActivated) {
+        return true;
+      }
+
+      const frontMatterFilterActivated = this.settings.pinFilters.frontMatter?.some((filter) =>
+        checkFrontMatterFilter(filter, path),
+      );
+      if (frontMatterFilterActivated) {
         return true;
       }
 
@@ -192,14 +200,19 @@ export default class FileExplorerPlusPlugin extends Plugin {
       }
 
       const pathFilterActivated = this.settings.hideFilters.paths.some((filter) => checkPathFilter(filter, path));
-
       if (pathFilterActivated) {
         return true;
       }
 
       const tagFilterActivated = this.settings.hideFilters.tags.some((filter) => checkTagFilter(filter, path));
-
       if (tagFilterActivated) {
+        return true;
+      }
+
+      const frontMatterFilterActivated = this.settings.hideFilters.frontMatter?.some((filter) =>
+        checkFrontMatterFilter(filter, path),
+      );
+      if (frontMatterFilterActivated) {
         return true;
       }
 
