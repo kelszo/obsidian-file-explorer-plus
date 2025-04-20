@@ -21,13 +21,21 @@ export default class FileExplorerPlusPlugin extends Plugin {
 
         this.app.workspace.onLayoutReady(() => {
             this.patchFileExplorer();
-            this.getFileExplorer()?.requestSort();
+
+            const fileExplorer = this.getFileExplorer();
+            if (fileExplorer?.requestSort) {
+                fileExplorer.requestSort();
+            }
         });
 
         this.app.workspace.on("layout-change", () => {
             if (!this.getFileExplorer()?.fileExplorerPlusPatched) {
                 this.patchFileExplorer();
-                this.getFileExplorer()?.requestSort();
+
+                const fileExplorer = this.getFileExplorer();
+                if (fileExplorer?.requestSort) {
+                    fileExplorer.requestSort();
+                }
             }
         });
     }
@@ -141,7 +149,9 @@ export default class FileExplorerPlusPlugin extends Plugin {
             fileExplorer!.fileItems[path] = changeVirtualElementPin(fileExplorer!.fileItems[path], false);
         }
 
-        fileExplorer.requestSort();
+        if (fileExplorer?.requestSort) {
+            fileExplorer.requestSort();
+        }
         fileExplorer.fileExplorerPlusPatched = false;
     }
 
