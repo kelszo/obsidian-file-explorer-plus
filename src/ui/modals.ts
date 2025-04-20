@@ -19,9 +19,11 @@ export class InputFilterNameModal extends FuzzySuggestModal<Filter> {
     if (this.actionType === "PIN") {
       filters = filters.concat(this.plugin.settings?.pinFilters.tags || []);
       filters = filters.concat(this.plugin.settings?.pinFilters.paths || []);
+      filters = filters.concat(this.plugin.settings?.pinFilters.frontMatter || []);
     } else if (this.actionType === "HIDE") {
       filters = filters.concat(this.plugin.settings?.hideFilters.tags || []);
       filters = filters.concat(this.plugin.settings?.hideFilters.paths || []);
+      filters = filters.concat(this.plugin.settings?.hideFilters.frontMatter || []);
     }
 
     filters = filters.filter((x) => x.name !== "");
@@ -44,7 +46,16 @@ export class InputFilterNameModal extends FuzzySuggestModal<Filter> {
 
         return filter;
       });
+
       this.plugin.settings.pinFilters.paths = this.plugin.settings.pinFilters.paths.map((filter) => {
+        if (filter.name === chosenFilter.name) {
+          filter.active = !filter.active;
+        }
+
+        return filter;
+      });
+
+      this.plugin.settings.pinFilters.frontMatter = this.plugin.settings.pinFilters.frontMatter.map((filter) => {
         if (filter.name === chosenFilter.name) {
           filter.active = !filter.active;
         }
@@ -59,7 +70,16 @@ export class InputFilterNameModal extends FuzzySuggestModal<Filter> {
 
         return filter;
       });
+
       this.plugin.settings.hideFilters.paths = this.plugin.settings.hideFilters.paths.map((filter) => {
+        if (filter.name === chosenFilter.name) {
+          filter.active = !filter.active;
+        }
+
+        return filter;
+      });
+
+      this.plugin.settings.hideFilters.frontMatter = this.plugin.settings.hideFilters.frontMatter.map((filter) => {
         if (filter.name === chosenFilter.name) {
           filter.active = !filter.active;
         }
