@@ -19,64 +19,64 @@ const prod = process.argv[2] === "production";
 let mainJsPath = "main.js";
 let stylesCssPath = "styles.css";
 
-const vaultPath = process.argv[2];
+const vaultPath = process.argv[3];
 
 if (isDirectory(vaultPath)) {
-    const pluginsDir = path.join(vaultPath, ".obsidian", "plugins");
+  const pluginsDir = path.join(vaultPath, ".obsidian", "plugins");
 
-    if (isDirectory(pluginsDir)) {
-        const fileExplorerPlusDir = path.join(pluginsDir, "file-explorer-plus");
-        mainJsPath = path.join(fileExplorerPlusDir, "main.js");
-        stylesCssPath = path.join(fileExplorerPlusDir, "styles.css");
-        const hotreloadFilePath = path.join(fileExplorerPlusDir, ".hotreload");
+  if (isDirectory(pluginsDir)) {
+    const fileExplorerPlusDir = path.join(pluginsDir, "file-explorer-plus");
+    mainJsPath = path.join(fileExplorerPlusDir, "main.js");
+    stylesCssPath = path.join(fileExplorerPlusDir, "styles.css");
+    const hotreloadFilePath = path.join(fileExplorerPlusDir, ".hotreload");
 
-        fs.closeSync(fs.openSync(hotreloadFilePath, "w"));
+    fs.closeSync(fs.openSync(hotreloadFilePath, "w"));
 
-        console.log(`Saving to ${fileExplorerPlusDir}`);
-    }
+    console.log(`Saving to ${fileExplorerPlusDir}`);
+  }
 }
 
 let jsContext = esbuild.context({
-    banner: {
-        js: banner,
-    },
-    entryPoints: ["src/main.ts"],
-    bundle: true,
-    external: [
-        "obsidian",
-        "electron",
-        "@codemirror/autocomplete",
-        "@codemirror/collab",
-        "@codemirror/commands",
-        "@codemirror/language",
-        "@codemirror/lint",
-        "@codemirror/search",
-        "@codemirror/state",
-        "@codemirror/view",
-        "@lezer/common",
-        "@lezer/highlight",
-        "@lezer/lr",
-        ...builtins,
-    ],
-    format: "cjs",
-    target: "es2018",
-    logLevel: "info",
-    sourcemap: prod ? false : "inline",
-    treeShaking: true,
-    outfile: mainJsPath,
+  banner: {
+    js: banner,
+  },
+  entryPoints: ["src/main.ts"],
+  bundle: true,
+  external: [
+    "obsidian",
+    "electron",
+    "@codemirror/autocomplete",
+    "@codemirror/collab",
+    "@codemirror/commands",
+    "@codemirror/language",
+    "@codemirror/lint",
+    "@codemirror/search",
+    "@codemirror/state",
+    "@codemirror/view",
+    "@lezer/common",
+    "@lezer/highlight",
+    "@lezer/lr",
+    ...builtins,
+  ],
+  format: "cjs",
+  target: "es2018",
+  logLevel: "info",
+  sourcemap: prod ? false : "inline",
+  treeShaking: true,
+  outfile: mainJsPath,
 });
 
 let scssContext = esbuild.context({
-    entryPoints: ["src/main.scss"],
-    outfile: stylesCssPath,
-    plugins: [sassPlugin()],
+  entryPoints: ["src/main.scss"],
+  outfile: stylesCssPath,
+  plugins: [sassPlugin()],
 });
 
 [jsContext, scssContext] = await Promise.all([jsContext, scssContext]);
 
 if (prod) {
-    await Promise.all([jsContext.rebuild(), scssContext.rebuild()]);
-    process.exit(0);
+  await Promise.all([jsContext.rebuild(), scssContext.rebuild()]);
+  process.exit(0);
 } else {
-    await Promise.all([jsContext.watch(), scssContext.watch()]);
+  await Promise.all([jsContext.watch(), scssContext.watch()]);
 }
