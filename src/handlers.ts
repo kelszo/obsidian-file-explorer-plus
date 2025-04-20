@@ -92,6 +92,8 @@ export function addOnRename(plugin: FileExplorerPlusPlugin) {
       if (pinFilterPreviousIndex !== -1) {
         plugin.settings.pinFilters.paths[pinFilterPreviousIndex].pattern = path.path;
       }
+
+      plugin.saveSettings();
     }),
   );
 }
@@ -122,6 +124,8 @@ export function addOnDelete(plugin: FileExplorerPlusPlugin) {
       if (pinFilterPreviousIndex !== -1) {
         plugin.settings.pinFilters.paths.splice(pinFilterPreviousIndex, 1);
       }
+
+      plugin.saveSettings();
     }),
   );
 }
