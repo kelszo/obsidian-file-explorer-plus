@@ -1,4 +1,4 @@
-import { TAbstractFile, TFile, TFolder, setIcon, PathVirtualElement, TagCache } from "obsidian";
+import { PathVirtualElement, TAbstractFile, TFile, TFolder, TagCache, setIcon } from "obsidian";
 import wcmatch from "wildcard-match";
 
 import { FrontMatterFilter, PathFilter, TagFilter } from "./settings";
@@ -159,4 +159,39 @@ export function checkFrontMatterFilter(filter: FrontMatterFilter, file: TAbstrac
   }
 
   return false;
+}
+
+export function checkFolderInverseVisibilityRecursively(
+  folderToCheck: TFolder,
+  globalPathsToHideLookUp: { [key: string]: boolean }
+): boolean {
+  // Check if the folder itself is marked for visibility
+  if (globalPathsToHideLookUp[folderToCheck.path]) {
+    return true;
+  }
+  // If no children, it can't contain a visible item
+  if (!folderToCheck.children) {
+    return false;
+  }
+  // Check if any child meets the condition
+  return folderToCheck.children.some((child) => {
+    if (child instanceof TFolder) {
+      // Recursively check subfolders
+      return checkFolderInverseVisibilityRecursively(child, globalPathsToHideLookUp);
+    } else {
+      // Check if child file is marked for visibility
+      return globalPathsToHideLookUp[child.path];
+    }
+  });
+}
+
+export function shouldHideInInverse(file: TAbstractFile, globalPathsToHideLookUp: { [key: string]: boolean }): boolean {
+  if (file instanceof TFolder) {
+    // A folder is hidden if neither it nor any descendant is in the global hide list.
+    const shouldBeVisible = checkFolderInverseVisibilityRecursively(file, globalPathsToHideLookUp);
+    return !shouldBeVisible;
+  } else {
+    // A file is hidden if it's not in the global hide list.
+    return !globalPathsToHideLookUp[file.path];
+  }
 }

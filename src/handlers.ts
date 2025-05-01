@@ -47,20 +47,26 @@ export function addCommands(plugin: FileExplorerPlusPlugin) {
 export function addOnTagChange(plugin: FileExplorerPlusPlugin) {
   plugin.registerEvent(
     plugin.app.metadataCache.on("changed", (path, data, cache) => {
-      const isPinned = plugin.getFileExplorer()!.fileItems[path.path].info.pinned;
-      const isHidden = plugin.getFileExplorer()!.fileItems[path.path].info.hidden;
-
-      const shouldBePinned = plugin.settings.pinFilters.tags.some((filter) => checkTagFilter(filter, path));
-      const shouldBeHidden = plugin.settings.hideFilters.tags.some((filter) => checkTagFilter(filter, path));
-
-      if (isPinned !== shouldBePinned && !shouldBeHidden) {
-        plugin.getFileExplorer()?.requestSort();
-
+     
+      const fileExplorer = plugin.getFileExplorer();
+      if (!fileExplorer || !fileExplorer.fileItems[path.path]) {
         return;
       }
 
-      if (isHidden !== shouldBeHidden) {
-        plugin.getFileExplorer()?.requestSort();
+      const isPinned = fileExplorer.fileItems[path.path].info.pinned;
+      const isHidden = fileExplorer.fileItems[path.path].info.hidden;
+      const isInverseHide = plugin.settings.hideFilters.inverse;
+
+
+      const shouldBePinned = plugin.settings.pinFilters.tags.some((filter) => checkTagFilter(filter, path));
+      const matchesHideTagFilter = plugin.settings.hideFilters.tags.some((filter) => checkTagFilter(filter, path));
+      const shouldBeHidden = isInverseHide ? !matchesHideTagFilter : matchesHideTagFilter;
+
+      if (
+        isHidden !== shouldBeHidden ||
+        (!shouldBeHidden && isPinned !== shouldBePinned)
+      ) {
+        fileExplorer.requestSort();
       }
     }),
   );
