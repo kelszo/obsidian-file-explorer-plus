@@ -6,7 +6,7 @@ import FileExplorerPlusSettingTab, {
   FILE_EXPLORER_PLUS_DEFAULT_SETTINGS,
 } from "./settings";
 import { addCommandsToFileMenu, addOnRename, addOnDelete, addOnTagChange, addCommands } from "./handlers";
-import { checkPathFilter, checkTagFilter, changeVirtualElementPin, checkFrontMatterFilter } from "./utils";
+import { checkPathFilter, checkTagFilter, changeVirtualElementPin, checkFrontMatterFilter, shouldHideInInverse } from "./utils";
 
 export default class FileExplorerPlusPlugin extends Plugin {
   settings: FileExplorerPlusPluginSettings;
@@ -71,7 +71,25 @@ export default class FileExplorerPlusPlugin extends Plugin {
             let paths = sortedChildren.map((el) => el.file);
 
             if (plugin.settings.hideFilters.active) {
-              const pathsToHide = plugin.getPathsToHide(paths);
+              let shouldBeHidden: boolean;
+
+              if (plugin.settings.hideFilters.inverse) {
+                // Calculate lookup globally only for inverse mode
+                const allFiles = plugin.app.vault.getAllLoadedFiles();
+                const globalPathsToHide = plugin.getPathsToHide(allFiles);
+                const globalPathsToHideLookUp = globalPathsToHide.reduce((acc, path) => {
+                  acc[path.path] = true;
+                  return acc;
+                }, {} as { [key: string]: boolean });
+
+                // Apply visibility rules using the recursive check and global lookup
+                sortedChildren = sortedChildren.filter((vEl) => {
+                  shouldBeHidden = shouldHideInInverse(vEl.file, globalPathsToHideLookUp);
+                  vEl.info.hidden = shouldBeHidden;
+                  return !shouldBeHidden;
+                });
+              } else {
+                const pathsToHide = plugin.getPathsToHide(paths);
 
               const pathsToHideLookUp = pathsToHide.reduce(
                 (acc, path) => {
@@ -81,15 +99,12 @@ export default class FileExplorerPlusPlugin extends Plugin {
                 {} as { [key: string]: boolean },
               );
 
-              sortedChildren = sortedChildren.filter((vEl) => {
-                if (pathsToHideLookUp[vEl.file.path]) {
-                  vEl.info.hidden = true;
-                  return false;
-                } else {
-                  vEl.info.hidden = false;
-                  return true;
-                }
-              });
+                sortedChildren = sortedChildren.filter((vEl) => {
+                  shouldBeHidden = !!pathsToHideLookUp[vEl.file.path];
+                  vEl.info.hidden = shouldBeHidden;
+                  return !shouldBeHidden;
+                });
+              }
             }
 
             // only get visible vChildren

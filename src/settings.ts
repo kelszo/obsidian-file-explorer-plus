@@ -42,6 +42,7 @@ export interface FileExplorerPlusPluginSettings {
     tags: TagFilter[];
     paths: PathFilter[];
     frontMatter: FrontMatterFilter[];
+    inverse: boolean;
   };
 }
 
@@ -111,6 +112,7 @@ export const FILE_EXPLORER_PLUS_DEFAULT_SETTINGS: FileExplorerPlusPluginSettings
         patternType: "STRICT",
       },
     ],
+    inverse: false,
   },
 };
 
@@ -209,6 +211,23 @@ export default class FileExplorerPlusSettingTab extends PluginSettingTab {
           new PathsActivatedModal(this.plugin, "HIDE").open();
         });
       });
+
+    new Setting(this.containerEl)
+      .setName("Inverse hide filters")
+      .setDesc("Hide everything except items matching the filters.")
+      .addToggle((toggle) =>
+        toggle
+          .setTooltip(toggle ? "Inverse" : "Normal")
+          .setValue(this.plugin.settings.hideFilters.inverse)
+          .onChange((inverse) => {
+            this.plugin.settings.hideFilters.inverse = inverse;
+
+            this.plugin.saveSettings();
+
+            this.plugin.getFileExplorer()?.requestSort();
+          })
+      );
+
     this.hideTagFiltersSettings();
     this.hidePathFiltersSettings();
     this.hideFrontMatterFiltersSettings();
